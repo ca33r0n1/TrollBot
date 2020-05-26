@@ -11,33 +11,22 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Configuration {
 
-    private Boolean debug;
-
-    private Map<String, String> bot;
-
     private Map<String, String> api;
+
+    private Map<String, String> Rewards;
 
     private Map<String, String> credentials;
 
     private List<String> channels;
 
-    private Map<String, String> Channel_Points;
+    private List<String> admins;
 
-    public Boolean getDebug() {
-        return debug;
-    }
+    private Map<String, String> rcon;
 
-    public void setDebug(Boolean debug) {
-        this.debug = debug;
-    }
+    private Map<String, String> spotify;
 
-    public Map<String, String> getBot() {
-        return bot;
-    }
+    private Map<String, String> redis;
 
-    public void setBot(Map<String, String> bot) {
-        this.bot = bot;
-    }
 
     public Map<String, String> getApi() {
         return api;
@@ -63,22 +52,57 @@ public class Configuration {
         this.channels = channels;
     }
 
-    public Map<String, String> getChannel_Points() {
-        return Channel_Points;
+    public Map<String, String> getRewards() {
+        return Rewards;
     }
 
-    public void setChannel_Points(Map<String, String> channel_Points) {
-        Channel_Points = channel_Points;
+    public void setRewards(Map<String, String> rewards) {
+        Rewards = rewards;
+    }
+
+    public List<String> getAdmins() {
+        return admins;
+    }
+
+    public Map<String, String> getSpotify() {
+        return spotify;
+    }
+
+    public void setSpotify(Map<String, String> spotify) {
+        this.spotify = spotify;
+    }
+
+    public Map<String, String> getRcon() {
+        return rcon;
+    }
+
+    public void setRcon(Map<String, String> rcon) {
+        this.rcon = rcon;
+    }
+
+    public void setAdmins(List<String> admins) {
+        this.admins = admins;
+    }
+
+    public Map<String, String> getRedis() {
+        return redis;
+    }
+
+    public void setRedis(Map<String, String> redis) {
+        this.redis = redis;
     }
 
     @Override
     public String toString() {
         return "Configuration{" +
-                "bot=" + bot +
-                ", api=" + api +
+                "api=" + api +
                 ", credentials=" + credentials +
                 ", channels=" + channels +
-                ", Channel_Points=" + Channel_Points +
+                ", admins=" + admins +
+                ", Rewards=" + Rewards +
+                ", rcon=" + rcon +
+                ", spotify=" + spotify +
+                ", redis=" + redis +
                 '}';
     }
 }

@@ -9,7 +9,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
-public class RCon {
+public class RCONClient {
 
     /**
      * The value of a command packet type.
@@ -63,7 +63,7 @@ public class RCon {
      * @throws AuthenticationException
      *             The authentication using the password failed.
      */
-    public RCon(final String host, final String port, final char[] password) throws IOException, AuthenticationException {
+    public RCONClient(final String host, final String port, final char[] password) throws IOException, AuthenticationException {
         super();
         final Random random = new Random();
         requestId = random.nextInt();
@@ -768,10 +768,10 @@ public class RCon {
      * @throws IncorrectRequestIdException
      *             The request id was not as expected.
      */
-    private String send(final int type, final String payload) throws IOException, IncorrectRequestIdException {
+    private String Response(final int type, final String payload) throws IOException, IncorrectRequestIdException {
         final String responsePayload = new String(send(type, payload.getBytes(StandardCharsets.US_ASCII)),
                 StandardCharsets.US_ASCII);
-        System.out.println("Sending payload " + responsePayload);
+        System.out.println("Response: " + responsePayload);
         return responsePayload;
     }
 
@@ -788,8 +788,8 @@ public class RCon {
      *             The request id was not as expected.
      */
     private String send(final String payload) throws IOException, IncorrectRequestIdException {
-        System.out.println("Sending payload " + payload);
-        return send(COMMAND_TYPE, payload);
+        System.out.println("Sending command " + payload);
+        return Response(COMMAND_TYPE, payload);
     }
 
     @Override

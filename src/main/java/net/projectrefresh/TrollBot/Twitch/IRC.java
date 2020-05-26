@@ -3,15 +3,16 @@ package net.projectrefresh.TrollBot.Twitch;
 import com.github.philippheuer.events4j.core.EventManager;
 import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
+import com.wrapper.spotify.exceptions.SpotifyWebApiException;
+import net.projectrefresh.TrollBot.Misc.Utils;
+import net.projectrefresh.TrollBot.RCON.AuthenticationException;
 import net.projectrefresh.TrollBot.RCON.TrollEvents;
-import net.projectrefresh.TrollBot.TrollBotApplication;
+import net.projectrefresh.TrollBot.TrollBot;
+import org.apache.hc.core5.http.ParseException;
 
-import java.util.Date;
-import java.util.TimerTask;
+import java.io.IOException;
 
 public class IRC {
-
-
 
     /**
      * Main IRC handler
@@ -19,71 +20,122 @@ public class IRC {
      */
     public IRC (EventManager eventManager){
         eventManager.getEventHandler(SimpleEventHandler.class).onEvent(IRCMessageEvent.class, event -> {
+            //Utils.Log(event.toString());
             if (event.toString().toLowerCase().contains("privmsg")) {
-
+                String User = event.getUser().getName();
                 String Message = event.toString().split("PRIVMSG #bamco :")[1].replace(")", "");
+                Utils.Log(User + ": " + Message);
                 if (event.getTags().containsKey("custom-reward-id")) {
-                    try {
-                        switch (event.getTags().get("custom-reward-id").toLowerCase()) {
-                            case "c1453ab0-0c7d-45b6-ae81-f61c8f0f83ae": {
-                                TrollEvents.Smite("BAMCO_");
-
+                    if (TrollEvents.BotPaused) {
+                        TrollBot.client.getChat().sendMessage("bamco", "@" + event.getUser().getName() + " the bot is paused ask a mod for a refund!");
+                        return;
+                    }
+                    ChannelPoints.Redeemed(event);
+                }
+                if (TrollBot.Admins.contains(User)) {
+                    if (Message.startsWith("!tb")) {
+                        String[] cmd = Message.split(" ");
+                        switch (cmd[1]) {
+                            case "version": {
+                                TrollBot.client.getChat().sendMessage("bamco", "Troll Bot Version is " + TrollBot.Version + " - Made by @ca33r0n1 KappaPride <3 bamcotOpbrew");
                                 break;
                             }
 
-                            case "0fd61844-9869-4ceb-a0d8-5ddb50abb816": {
-                                TrollBotApplication.rcon.SendCommand("spawnmob", "creeper:charged", "1", "BAMCO_");
-                                break;
+                            case "song": {
+                                try {
+                                    Commands.CurrentSong();
+                                } catch (ParseException | SpotifyWebApiException | IOException e) {
+                                    e.printStackTrace();
+                                }
                             }
 
-                            case "05a232de-a607-435a-ab67-1a7bf6a02fcf": {
-                                TrollBotApplication.rcon.SendCommand("Chat thinks you need to slow the F down matey");
-                                TrollEvents.SlowMove(Message, "BAMCO_");
-                                break;
-                            }
+                            case "admin": {
+                                switch (cmd[1]) {
+                                    case "on": {
+                                        Commands.ToggleBot(true);
+                                        break;
+                                    }
 
-                            case "04b60ca3-dc73-48dd-9821-40a088e06574": {
-                                int random_int = (int) (Math.random() * (700 - 1 + 1) + 1);
-                                TrollEvents.WheelofMisfortune(Message, "BAMCO_", random_int);
-                                break;
-                            }
+                                    case "off": {
+                                        Commands.ToggleBot(false);
+                                        break;
+                                    }
 
-                            case "f0968bd3-50f4-462a-a066-875b21d57751": {
-                                TrollEvents.SlowDigging(Message, "BAMCO_");
-                                break;
-                            }
+                                    case "reboot": {
+                                        TrollBot.getRconFactory().disconnect();
+                                        TrollBot.getRconFactory().connect();
+                                        break;
+                                    }
 
-                            case "8300dbf2-a2c7-4232-903d-0dc2ffd2eb69": {
-                                TrollEvents.setTime("SomePleb", Message.trim());
-                                break;
-                            }
+                                    case "whitelist": {
+                                        switch (cmd[2]) {
+                                            case "add": {
+                                                try {
+                                                    TrollBot.getRcon().whitelistAdd(cmd[3]);
+                                                } catch (IOException | AuthenticationException e) {
+                                                    e.printStackTrace();
+                                                }
+                                                break;
+                                            }
+                                            case "remove": {
+                                                try {
+                                                    TrollBot.getRcon().whitelistRemove(cmd[3]);
+                                                } catch (IOException | AuthenticationException e) {
+                                                    e.printStackTrace();
+                                                }
+                                                break;
+                                            }
+                                            default: {
+                                                IRC.SendMsg("Incorrect Usage. Please use like -> !tb whitelist add ca33r0n1");
+                                                break;
+                                            }
+                                        }
+                                        break;
+                                    }
 
-                            case "8b599805-2b0f-442a-b56d-41600b09acfb":{
-                                TrollEvents.CarePackage(Message, "BAMCO_");
-                                break;
-                            }
+                                    case "spotify": {
+                                        switch (cmd[2]) {
+                                            case "play": {
 
-                            case "57fcb397-4b14-44d9-8950-4374c3860374": {
-                                TrollEvents.BlockCommands();
-                                TrollBotApplication.client.getChat().sendMessage("bamco", "The Home and Back command has been toggled Kappa");
-                                break;
-                            }
+                                            }
 
-                            case "e84d18c0-19a4-48a2-95cf-86d8487cb164": {
-                                TrollEvents.DropHand("bamco", Message);
-                                break;
+                                            case "pause": {
+
+                                            }
+
+                                            case "queue": {
+
+                                            }
+
+                                            case "sr": {
+                                                if (cmd[3].equalsIgnoreCase("on")) {
+
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    default: {
+                                        IRC.SendMsg("Unknown Command. Ask Cam for help.");
+                                        break;
+                                    }
+
+
+                                }
                             }
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
                 }
-
             }
+
         });
     }
 
     public static void SendMsg(String Message){
-        TrollBotApplication.client.getChat().sendMessage("BAMCO", Message);
+        TrollBot.client.getChat().sendMessage("BAMCO", Message);
+    }
+
+    public static void TwitchCommand(String User, String Message){
+
     }
 }
